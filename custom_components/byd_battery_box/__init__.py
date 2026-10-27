@@ -24,12 +24,12 @@ type HubConfigEntry = ConfigEntry[hub.Hub]
 async def async_setup_entry(hass: HomeAssistant, entry: HubConfigEntry) -> bool:
     """Set up BYD Battery Box from a config entry."""
 
-    name = entry.data[CONF_NAME]
-    host = entry.data[CONF_HOST]
-    port = entry.data[CONF_PORT]
-    unit_id = entry.data.get(CONF_UNIT_ID, 1)
-    # intervals can be changed later in the integration's options; options win over the original setup
+    # address and intervals can be changed later in the integration's options; options win over the original setup
     settings = {**entry.data, **entry.options}
+    name = entry.data[CONF_NAME]
+    host = settings[CONF_HOST]
+    port = settings[CONF_PORT]
+    unit_id = entry.data.get(CONF_UNIT_ID, 1)
     scan_interval = settings[CONF_SCAN_INTERVAL]
     scan_interval_bms = settings[CONF_BMS_SCAN_INTERVAL]
     scan_interval_log = settings[CONF_LOG_SCAN_INTERVAL]

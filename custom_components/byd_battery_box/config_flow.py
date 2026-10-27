@@ -145,12 +145,16 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
 class OptionsFlowHandler(config_entries.OptionsFlow):
-    """Change the scan intervals; the entry reloads with the new values."""
+    """Change the BMU address and the scan intervals; the entry reloads with the new values."""
 
     async def async_step_init(self, user_input=None):
         errors = {}
         if user_input is not None:
-            if user_input[CONF_SCAN_INTERVAL] < 10:
+            if len(user_input[CONF_HOST]) < 3:
+                errors["base"] = "invalid_host"
+            elif not (1 <= user_input[CONF_PORT] <= 65535):
+                errors["base"] = "invalid_port"
+            elif user_input[CONF_SCAN_INTERVAL] < 10:
                 errors["base"] = "scan_interval_too_short"
             elif user_input[CONF_BMS_SCAN_INTERVAL] < 60:
                 errors["base"] = "bms_scan_interval_too_short"
@@ -162,6 +166,8 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         current = {**self.config_entry.data, **self.config_entry.options}
         schema = vol.Schema(
             {
+                vol.Required(CONF_HOST, default=current.get(CONF_HOST, "")): str,
+                vol.Required(CONF_PORT, default=current.get(CONF_PORT, DEFAULT_PORT)): int,
                 vol.Required(CONF_SCAN_INTERVAL, default=current.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)): int,
                 vol.Required(CONF_BMS_SCAN_INTERVAL, default=current.get(CONF_BMS_SCAN_INTERVAL, DEFAULT_BMS_SCAN_INTERVAL)): int,
                 vol.Required(CONF_LOG_SCAN_INTERVAL, default=current.get(CONF_LOG_SCAN_INTERVAL, DEFAULT_LOG_SCAN_INTERVAL)): int,
